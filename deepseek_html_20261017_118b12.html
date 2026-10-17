@@ -30,7 +30,7 @@ body {
 /* ─── HERO ─── */
 .hero {
   display: flex; align-items: center; justify-content: space-between;
-  max-width: 1100px; width: 100%; margin: 0 auto 28px; flex-wrap: wrap; gap: 14px;
+  max-width: 1180px; width: 100%; margin: 0 auto 24px; flex-wrap: wrap; gap: 14px;
 }
 .hero-brand { display: flex; align-items: center; gap: 14px; }
 .hero-logo {
@@ -52,11 +52,11 @@ body {
   color: var(--text-dim); font-size: 12px; font-weight: 600;
 }
 
-/* ─── GRID ─── */
+/* ─── GRID (5 kart için auto-fit) ─── */
 main {
-  flex: 1; display: grid; gap: 16px; max-width: 1100px; width: 100%;
+  flex: 1; display: grid; gap: 16px; max-width: 1180px; width: 100%;
   margin: 0 auto; align-content: center;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
 }
 @media (max-width: 640px) { main { grid-template-columns: 1fr; align-content: start; } }
 
@@ -107,14 +107,17 @@ main {
   font-size: 22px; color: var(--text-dim); flex-shrink: 0;
   transition: all 200ms;
 }
+
+/* ─── Renkler ─── */
 .card[data-key="taktik"]    { --tint: rgba(16, 185, 129, 0.12); }
 .card[data-key="azythos"]   { --tint: rgba(34, 211, 238, 0.12); }
 .card[data-key="performans"]{ --tint: rgba(139, 92, 246, 0.14); }
 .card[data-key="mac"]       { --tint: rgba(251, 146, 60, 0.12); }
+.card[data-key="iskelet"]   { --tint: rgba(244, 114, 182, 0.12); }
 
 /* ─── FOOTER ─── */
 .footer {
-  max-width: 1100px; width: 100%; margin: 22px auto 0; text-align: center;
+  max-width: 1180px; width: 100%; margin: 22px auto 0; text-align: center;
   color: var(--text-dim); font-size: 12px; line-height: 1.7;
 }
 .footer code {
@@ -130,7 +133,6 @@ main {
 }
 .project-screen.active { display: flex; }
 
-/* Üst bar (iframe içinde gezinmek için) */
 .project-bar {
   display: flex; align-items: center; gap: 10px;
   padding: max(8px, env(safe-area-inset-top)) 12px 8px;
@@ -163,7 +165,7 @@ main {
   flex: 1; width: 100%; border: 0; background: #0b1120; display: block;
 }
 
-/* Fallback: iframe engellendiyse göster */
+/* Fallback */
 .fallback {
   flex: 1; display: none; align-items: center; justify-content: center;
   padding: 24px; text-align: center;
@@ -199,7 +201,6 @@ main {
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-/* ─── KÜÇÜK EKRAN ─── */
 @media (max-width: 640px) {
   body { padding: 16px 12px; }
   .hero { margin-bottom: 18px; }
@@ -222,7 +223,7 @@ main {
       <div class="hero-logo">◈</div>
       <div>
         <h1>Sporcu Merkezi</h1>
-        <p>4 Proje · Tek Portal</p>
+        <p>5 Proje · Tek Portal</p>
       </div>
     </div>
     <div class="hero-author">👤 Osman Efe Tekinaslan</div>
@@ -264,11 +265,20 @@ main {
       </div>
       <div class="card-arrow">→</div>
     </button>
+
+    <button class="card" data-key="iskelet">
+      <div class="card-icon">🦴</div>
+      <div class="card-body">
+        <h3>İskelet Rehberi</h3>
+        <p>Anatomik iskelet referansı · Poz rehberi · Görsel kılavuz</p>
+      </div>
+      <div class="card-arrow">→</div>
+    </button>
   </main>
 
   <footer class="footer">
     <p>🌐 Tüm projeler GitHub Pages üzerinden canlı açılır</p>
-    <p style="margin-top:8px; opacity:0.6;">⌨️ Klavye: <code>1</code> <code>2</code> <code>3</code> <code>4</code> ile projelere geç · <code>ESC</code> ile ana sayfaya dön</p>
+    <p style="margin-top:8px; opacity:0.6;">⌨️ Klavye: <code>1</code>–<code>5</code> ile projelere geç · <code>ESC</code> ile ana sayfaya dön</p>
   </footer>
 </div>
 
@@ -317,8 +327,12 @@ main {
       src: 'https://sergioramosdeathknight-droid.github.io/ma--analiz/',
       title: '⚽ Maç Analiz'
     },
+    iskelet: {
+      src: 'https://sergioramosdeathknight-droid.github.io/iskelet-rehberi/',
+      title: '🦴 İskelet Rehberi'
+    },
   };
-  const ORDER = ['taktik', 'azythos', 'performans', 'mac'];
+  const ORDER = ['taktik', 'azythos', 'performans', 'mac', 'iskelet'];
 
   const homeScreen    = document.getElementById('homeScreen');
   const projectScreen = document.getElementById('projectScreen');
@@ -350,21 +364,15 @@ main {
     projectTitle.textContent = p.title;
     fallback.classList.remove('show');
     frame.style.display = 'block';
-
-    // iframe'i yükle
     frame.src = p.src;
 
-    // ekranları değiştir
     homeScreen.style.display = 'none';
     projectScreen.classList.add('active');
     document.body.classList.add('project-open');
 
     showToast(p.title + ' açılıyor…', 1800);
-
-    // history'ye bas (tarayıcı geri tuşu da çalışsın)
     try { history.pushState({ project: key }, '', '#' + key); } catch(e) {}
 
-    // ⏱️ 4 saniye içinde yüklenmezse fallback göster
     clearTimeout(loadTimeout);
     loadTimeout = setTimeout(() => {
       if (!frameLoaded && currentKey === key) {
@@ -399,32 +407,25 @@ main {
     }
   }
 
-  // iframe yüklendiğinde fallback'i iptal et
   frame.addEventListener('load', () => {
     if (!currentKey) return;
     frameLoaded = true;
     clearTimeout(loadTimeout);
-    // Yüklendiyse ama boşsa (X-Frame-Options engellemişse) fallback
-    // Bunu güvenli şekilde anlayamayız ama kullanıcı yeni sekme butonuna basabilir
   });
 
-  // Kartlara tıklama
   document.querySelectorAll('.card').forEach(card => {
     card.addEventListener('click', () => openProject(card.dataset.key));
   });
 
-  // Tarayıcı geri tuşu
   window.addEventListener('popstate', () => {
     if (currentKey) closeProject(true);
   });
 
-  // Sayfa açıldığında hash varsa otomatik aç
   if (location.hash) {
     const key = location.hash.replace('#', '');
     if (PROJECTS[key]) setTimeout(() => openProject(key), 100);
   }
 
-  // Klavye kısayolları
   document.addEventListener('keydown', (e) => {
     if (currentKey) {
       if (e.key === 'Escape') { e.preventDefault(); closeProject(); }
@@ -437,7 +438,6 @@ main {
     }
   });
 
-  // Global erişim için
   window.closeProject = closeProject;
   window.openInNewTab = openInNewTab;
 
